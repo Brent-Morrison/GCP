@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+# https://cloud.google.com/compute/docs/containers/deploying-containers
+
 # Variables
 PROJECT_ID=cloudstoragepythonuploadtest
 LOCATION=australia-southeast2
 BUCKET_NAME=brent_test_bucket
-OBJECT_LOCATION=/c/Users/brent/Documents/R/Misc_scripts/m01_preds.csv
+OBJECT_LOCATION=/c/Users/brent/Documents/R/Misc_scripts/docker_test.csv
 DOCKER_REPO=dockerpy
 DOCKER_IMAGE=myimage
 DOCKER_TAG=tag1
@@ -35,10 +37,8 @@ docker image build --tag ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}
 docker run --rm -it ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG}
 
 # Push docker image from local machine to GCP artifact registry
-# -https://cloud.google.com/sdk/docs/authorizing
-# -https://cloud.google.com/sdk/gcloud/reference/auth/login
-gcloud auth login # Manual step, this will ask for verification code generated online. To be copied to terminal
-gcloud auth activate-service-account cloudstoragepy@cloudstoragepythonuploadtest.iam.gserviceaccount.com --key-file=GCP/cloudstoragepythonuploadtest-aab4aa8c67eb.json
+gcloud auth activate-service-account cloudstoragepy@cloudstoragepythonuploadtest.iam.gserviceaccount.com \
+--key-file=/home/brent/GCP/cloudstoragepythonuploadtest-aab4aa8c67eb.json
 gcloud auth configure-docker ${LOCATION}-docker.pkg.dev
 docker push ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG}
 

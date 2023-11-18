@@ -1,7 +1,9 @@
 # https://github.com/googleapis/python-storage/tree/main/samples/snippets
 import os
+import io
 from google.cloud import storage
 
+# Authenticatation file to environment variable
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudstoragepythonuploadtest-aab4aa8c67eb.json"
 
 bucket_name = "brent_test_bucket"
@@ -48,3 +50,17 @@ def upload_blob_to_bucket(source_file, blob_name, bucket_name):
     
 source_file = '/c/Users/brent/Documents/R/Misc_scripts/m01_preds.csv'
 upload_blob_to_bucket(source_file, "test_csv", bucket_name)
+
+# --------------
+# https://stackoverflow.com/a/67363270
+
+import pandas as pd
+def gcp_csv_to_df(bucket_name, source_file_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_file_name)
+    data = blob.download_as_bytes()
+    df = pd.read_csv(io.BytesIO(data))
+    return df
+
+df = gcp_csv_to_df("brent_test_bucket", "m01_preds.csv")

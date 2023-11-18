@@ -1,7 +1,12 @@
 # Start with python 3.11 image
 FROM python:3.11-slim
 
-# Copy the current directory into /app on the image
+# Install pip requirements
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+# Copy the current directory into /app on the image 
+# (must be in the folder containing the dockerfile)
 WORKDIR /app
 COPY . /app
 
