@@ -23,12 +23,12 @@ import numpy as np
 # (how to do this in container on GCP)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "cloudstoragepythonuploadtest-aab4aa8c67eb.json"
 
-
 storage_client = storage.Client()
 bucket = storage_client.bucket("brent_test_bucket")
 blob = bucket.blob("docker_test.csv")
 data = blob.download_as_bytes()
 df = pd.read_csv(io.BytesIO(data), header=None, names=["Col1"])
+#df = pd.read_csv('gs://brent_test_bucket/docker_test.csv')
 messages = df['Col1'].tolist()
 
 print(np.random.choice(messages))
