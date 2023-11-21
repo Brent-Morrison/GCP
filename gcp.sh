@@ -6,10 +6,10 @@
 PROJECT_ID=cloudstoragepythonuploadtest
 LOCATION=australia-southeast2
 BUCKET_NAME=brent_test_bucket
-OBJECT_LOCATION=/c/Users/brent/Documents/R/Misc_scripts/docker_test.csv
+OBJECT_LOCATION=/c/Users/brent/Documents/R/Misc_scripts/m01_preds.csv
 DOCKER_REPO=dockerpy
 DOCKER_IMAGE=myimage
-DOCKER_TAG=tag4
+DOCKER_TAG=tag5
 JOB_NAME=test-job
 
 echo "PRELIMINARY: SET PROJECT, CREDENTIALS & ACTIVATE SERVICE ACCOUNT"
@@ -46,23 +46,27 @@ docker image build --tag ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}
 # https://medium.com/google-cloud/use-google-cloud-user-credentials-when-testing-containers-locally-acb57cd4e4da
 # https://stackoverflow.com/questions/57137863/set-google-application-credentials-in-docker
 
-echo "RUN DOCKER IMAGE LOCALLY"
-cd ..
+#echo "RUN DOCKER IMAGE LOCALLY"
+#cd ..
 
 # Credentials to env variable for use in container
-export GOOGLE_APPLICATION_CREDENTIALS="/home/brent/GCP/cloudstoragepythonuploadtest-aab4aa8c67eb.json"
+#export GOOGLE_APPLICATION_CREDENTIALS=cloudstoragepythonuploadtest-aab4aa8c67eb.json
 
 # Run
-docker run --rm -it ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} \
---env GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS \
---volume $GOOGLE_APPLICATION_CREDENTIALS:$GOOGLE_APPLICATION_CREDENTIALS:ro
+# "-e / --env  ", set the GOOGLE_APPLICATION_CREDENTIALS variable inside the container
+# "-v/ --volume", inject the credential file into the container (assumes GOOGLE_APPLICATION_CREDENTIALS environment variable set)
+#docker run --rm -it ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} \
+#--env GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/cloudstoragepythonuploadtest-aab4aa8c67eb.json \
+#--volume $GOOGLE_APPLICATION_CREDENTIALS:/tmp/keys/cloudstoragepythonuploadtest-aab4aa8c67eb.json:ro
+
 
 # Push docker image from local machine to GCP artifact registry
 echo "PUSH DOCKER IMAGE TO CLOUD"
 gcloud auth configure-docker ${LOCATION}-docker.pkg.dev
 docker push ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG}
 
-# Deploy image with GCP Run (https://cloud.google.com/run/docs/create-jobs)
+# Deploy image with GCP Run 
+# (https://cloud.google.com/run/docs/create-jobs)
 echo "DEPLOY DOCKER IMAGE"
 gcloud beta run jobs deploy ${JOB_NAME} --image ${LOCATION}-docker.pkg.dev/${PROJECT_ID}/${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} --region ${LOCATION}
 
