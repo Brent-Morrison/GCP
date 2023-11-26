@@ -9,7 +9,7 @@ BUCKET_NAME=brent_test_bucket
 OBJECT_LOCATION=/c/Users/brent/Documents/R/Misc_scripts/m01_preds.csv
 DOCKER_REPO=dockerpy
 DOCKER_IMAGE=myimage
-DOCKER_TAG=tag5
+DOCKER_TAG=tag6
 JOB_NAME=test-job
 
 echo "PRELIMINARY: SET PROJECT, CREDENTIALS & ACTIVATE SERVICE ACCOUNT"
@@ -19,7 +19,7 @@ gcloud config set project ${PROJECT_ID}
 
 # Activate service account
 gcloud auth activate-service-account cloudstoragepy@cloudstoragepythonuploadtest.iam.gserviceaccount.com \
---key-file=cloudstoragepythonuploadtest-aab4aa8c67eb.json
+    --key-file=cloudstoragepythonuploadtest-aab4aa8c67eb.json
 
 # Create bucket from local development environment
 gcloud storage buckets create gs://${BUCKET_NAME} --project=${PROJECT_ID} --location=${LOCATION}
@@ -30,9 +30,9 @@ gcloud storage cp ${OBJECT_LOCATION} gs://${BUCKET_NAME}/
 # Create artifact repository for Docker in GCP
 echo "CREATE ARTIFACT REPO"
 gcloud artifacts repositories create ${DOCKER_REPO} \
---repository-format=docker \
---location=${LOCATION} \
---description="Docker python test"
+    --repository-format=docker \
+    --location=${LOCATION} \
+    --description="Docker python test"
 
 # Build the docker image 
 # -must cd to folder containing dockerfile
@@ -74,8 +74,10 @@ gcloud beta run jobs deploy ${JOB_NAME} --image ${LOCATION}-docker.pkg.dev/${PRO
 echo "RUN DOCKER IMAGE"
 gcloud beta run jobs execute ${JOB_NAME} --region ${LOCATION}
 
-# Inspect output
-#xxxxx
+# Extract output to current directory
+echo "SAVE RESULTS LOCALLY"
+cd ~/GCP
+gsutil cp gs://${BUCKET_NAME}/output.csv .
 
 # Delete artifact registry repo & bucket
 echo "DELETE REPO AND BUCKET"

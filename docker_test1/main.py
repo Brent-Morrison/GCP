@@ -57,4 +57,4 @@ def write_df_gcs_csv(df, bucket_name, blob_name):
 
 new_df = df[['lower','upper']].copy() 
 
-write_df_gcs_csv(new_df, "brent_test_bucket", "write_test1.csv")
+write_df_gcs_csv(new_df, "brent_test_bucket", "output.csv")
