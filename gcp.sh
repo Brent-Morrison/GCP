@@ -82,4 +82,5 @@ gsutil cp gs://${BUCKET_NAME}/output.csv .
 # Delete artifact registry repo & bucket
 echo "DELETE REPO AND BUCKET"
 gcloud artifacts repositories delete ${DOCKER_REPO} --location=${LOCATION} --async
+#gcloud storage rm gs://${BUCKET_NAME}/m01_preds.csv
 gcloud storage rm --recursive gs://${BUCKET_NAME}
