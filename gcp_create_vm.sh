@@ -4,6 +4,7 @@
 # https://gist.github.com/fabito/965b7d3e32307a5a0497f9f759e8bc83
 
 # Variables
+echo "SET VARIABLES"
 PROJECT_ID=cloudstoragepythonuploadtest
 INSTANCE_NAME=brent-test-vm
 LOCATION=australia-southeast2
@@ -15,18 +16,18 @@ DOCKER_IMAGE=myimage
 DOCKER_TAG=tag6
 JOB_NAME=test-job
 
-echo "RUNNING"
-
 # Set the project 
 gcloud config set project ${PROJECT_ID}
 
 # Create bucket from local development environment
+echo "COPY FILES TO STORAGE"
 gcloud storage buckets create gs://${BUCKET_NAME} --project=${PROJECT_ID} --location=${LOCATION}
 
 # Upload local file to bucket
 gcloud storage cp ${OBJECT_LOCATION} gs://${BUCKET_NAME}/
 
 # Create VM instance
+echo "CREATE VM"
 gcloud compute instances create ${INSTANCE_NAME} \
     --project=${PROJECT_ID} \
     --zone=${ZONE} \
@@ -45,24 +46,29 @@ gcloud compute instances create ${INSTANCE_NAME} \
 # python3 -c "x='Goodbye'; y=' '; z='world'; print(x+y+z)"
 # python3 -c "x=2; y=3; print(x+y)"
 
-# SSH into VM
-gcloud compute ssh --zone ${ZONE} ${INSTANCE_NAME}  --project ${PROJECT_ID}
-#  ... or this should go into start up script
+# SSH into VM & copy Python requirements
+# - default copy location is /home/brent/
+echo "SSH TO VM AND EXECUTE COMMAND"
+gcloud compute ssh ${INSTANCE_NAME} --project ${PROJECT_ID} --zone ${ZONE} \
+    --command="curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/requirements.txt --output requirements.txt" \ 
+# ... or this should go into start up script
+# ... or see https://stackoverflow.com/questions/63854277/is-there-a-way-to-execute-commands-remotely-using-gcloud-compute-ssh-utility
+# ... https://stackoverflow.com/questions/66038905/how-to-run-local-shell-script-on-remote-gcp-machine-via-gcloud-compute
 
 # Copy Python requirements
-curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/requirements.txt --output requirements.txt
+#curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/requirements.txt --output requirements.txt
 
 
 # Install pip and use to install requirements
-curl -sSL https://bootstrap.pypa.io/get-pip.py --output /usr/bin/python3/get-pip.py
-python3 get-pip.py
-python3 -m pip install -r requirements.txt
+#curl -sSL https://bootstrap.pypa.io/get-pip.py --output /usr/bin/python3/get-pip.py
+#python3 get-pip.py
+#python3 -m pip install -r requirements.txt
 
 # Copy python script & run
-curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/docker_test1/main.py --output main.py
-python3 main.py
+#curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/docker_test1/main.py --output main.py
+#python3 main.py
 
 # Extract output to current directory
-echo "SAVE RESULTS LOCALLY"
-cd ~/GCP
-gsutil cp gs://${BUCKET_NAME}/output.csv .
+#echo "SAVE RESULTS LOCALLY"
+#cd ~/GCP
+#gsutil cp gs://${BUCKET_NAME}/output.csv .
