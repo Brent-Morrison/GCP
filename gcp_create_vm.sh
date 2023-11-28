@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
+# https://cloud.google.com/compute/docs/instances/startup-scripts
 # https://github.com/GoogleCloudPlatform/compute-gpu-installation
 # https://gist.github.com/fabito/965b7d3e32307a5a0497f9f759e8bc83
+# https://stackoverflow.com/questions/63854277/is-there-a-way-to-execute-commands-remotely-using-gcloud-compute-ssh-utility
+# https://stackoverflow.com/questions/66038905/how-to-run-local-shell-script-on-remote-gcp-machine-via-gcloud-compute
 
 # Variables
 echo "SET VARIABLES"
@@ -39,36 +42,10 @@ gcloud compute instances create ${INSTANCE_NAME} \
     --create-disk=boot=yes,device-name=test-vm-1,image=projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20231101,size=10 \
     --no-shielded-secure-boot \
     --shielded-vtpm \
-    --shielded-integrity-monitoring
-
-
-# Python commands after SSH'ing in
-# python3 -c "x='Goodbye'; y=' '; z='world'; print(x+y+z)"
-# python3 -c "x=2; y=3; print(x+y)"
-
-# SSH into VM & copy Python requirements
-# - default copy location is /home/brent/
-echo "SSH TO VM AND EXECUTE COMMAND"
-gcloud compute ssh ${INSTANCE_NAME} --project ${PROJECT_ID} --zone ${ZONE} \
-    --command="curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/requirements.txt --output requirements.txt" \ 
-# ... or this should go into start up script
-# ... or see https://stackoverflow.com/questions/63854277/is-there-a-way-to-execute-commands-remotely-using-gcloud-compute-ssh-utility
-# ... https://stackoverflow.com/questions/66038905/how-to-run-local-shell-script-on-remote-gcp-machine-via-gcloud-compute
-
-# Copy Python requirements
-#curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/requirements.txt --output requirements.txt
-
-
-# Install pip and use to install requirements
-#curl -sSL https://bootstrap.pypa.io/get-pip.py --output /usr/bin/python3/get-pip.py
-#python3 get-pip.py
-#python3 -m pip install -r requirements.txt
-
-# Copy python script & run
-#curl https://raw.githubusercontent.com/Brent-Morrison/GCP/master/docker_test1/main.py --output main.py
-#python3 main.py
+    --shielded-integrity-monitoring \
+    --metadata-from-file=startup-script=startup.sh
 
 # Extract output to current directory
-#echo "SAVE RESULTS LOCALLY"
-#cd ~/GCP
-#gsutil cp gs://${BUCKET_NAME}/output.csv .
+echo "SAVE RESULTS LOCALLY"
+cd ~/GCP
+gsutil cp gs://${BUCKET_NAME}/output.csv .
