@@ -48,4 +48,15 @@ gcloud compute instances create ${INSTANCE_NAME} \
 # Extract output to current directory
 echo "SAVE RESULTS LOCALLY"
 cd ~/GCP
+file_path=gs://${BUCKET_NAME}/output.csv
+while [ "$(gsutil -q stat $file_path ; echo $?)" = !0 ]
+do
+  sleep 5
+done
 gsutil cp gs://${BUCKET_NAME}/output.csv .
+
+
+# Delete artifact registry repo & bucket
+echo "DELETE VM INSTANCE AND BUCKET"
+gcloud storage rm --recursive gs://${BUCKET_NAME}
+gcloud compute instances delete ${INSTANCE_NAME} --zone=${ZONE}
