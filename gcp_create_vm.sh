@@ -7,7 +7,7 @@
 # https://stackoverflow.com/questions/66038905/how-to-run-local-shell-script-on-remote-gcp-machine-via-gcloud-compute
 
 # Variables
-echo "SET VARIABLES"
+printf "\n----- SET VARIABLES\n\n"
 PROJECT_ID=cloudstoragepythonuploadtest
 INSTANCE_NAME=brent-test-vm
 LOCATION=australia-southeast2
@@ -23,14 +23,14 @@ JOB_NAME=test-job
 gcloud config set project ${PROJECT_ID}
 
 # Create bucket from local development environment
-echo "COPY FILES TO STORAGE"
+printf "\n----- COPY FILES TO STORAGE\n\n"
 gcloud storage buckets create gs://${BUCKET_NAME} --project=${PROJECT_ID} --location=${LOCATION}
 
 # Upload local file to bucket
 gcloud storage cp ${OBJECT_LOCATION} gs://${BUCKET_NAME}/
 
 # Create VM instance
-echo "CREATE VM"
+printf "\n----- CREATE VM\n\n"
 gcloud compute instances create ${INSTANCE_NAME} \
     --project=${PROJECT_ID} \
     --zone=${ZONE} \
@@ -46,17 +46,29 @@ gcloud compute instances create ${INSTANCE_NAME} \
     --metadata-from-file=startup-script=startup.sh
 
 # Extract output to current directory
-echo "SAVE RESULTS LOCALLY"
+printf "\n----- SAVE RESULTS LOCALLY\n\n"
 cd ~/GCP
+
+count=0
 file_path=gs://${BUCKET_NAME}/output.csv
-while [ "$(gsutil -q stat $file_path ; echo $?)" = !0 ]
-do
-  sleep 5
+while [ $count -lt 10 ]; do
+    # Check if file exists in GCP storage
+    if [ "$(gsutil -q stat $file_path ; echo $?)" = 0 ]; then
+        # Download & exit
+        gsutil cp gs://${BUCKET_NAME}/output.csv .
+        printf "\n----- DOWNLOAD COMPLETE\n\n"
+        break
+    fi
+    # Increment the counter 
+    ((count++)) 
+    if [ $count = 10 ]; then printf "\n----- UNABLE TO DOWNLOAD\n\n"; fi
+    sleep 10
 done
-gsutil cp gs://${BUCKET_NAME}/output.csv .
 
 
 # Delete artifact registry repo & bucket
 echo "DELETE VM INSTANCE AND BUCKET"
 gcloud storage rm --recursive gs://${BUCKET_NAME}
 gcloud compute instances delete ${INSTANCE_NAME} --zone=${ZONE}
+
+printf "\n----- SCRIPT COMPLETE\n\n"
