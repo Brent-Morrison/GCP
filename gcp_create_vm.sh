@@ -18,6 +18,7 @@ DOCKER_REPO=dockerpy
 DOCKER_IMAGE=myimage
 DOCKER_TAG=tag6
 JOB_NAME=test-job
+DELETE=true
 
 # Set the project 
 gcloud config set project ${PROJECT_ID}
@@ -46,6 +47,7 @@ gcloud compute instances create ${INSTANCE_NAME} \
     --metadata-from-file=startup-script=startup.sh
 
 # Extract output to current directory
+# - checks file existence as copy from VM can be delayed
 printf "\n----- SAVE RESULTS LOCALLY\n\n"
 cd ~/GCP
 
@@ -67,8 +69,11 @@ done
 
 
 # Delete artifact registry repo & bucket
-echo "DELETE VM INSTANCE AND BUCKET"
-gcloud storage rm --recursive gs://${BUCKET_NAME}
-gcloud compute instances delete ${INSTANCE_NAME} --zone=${ZONE}
+if $DELETE
+then
+  printf "\n----- DELETE VM INSTANCE AND BUCKET\n\n"
+  gcloud storage rm -q -r gs://${BUCKET_NAME}
+  gcloud compute instances delete -q ${INSTANCE_NAME} --zone=${ZONE}
+fi
 
 printf "\n----- SCRIPT COMPLETE\n\n"
