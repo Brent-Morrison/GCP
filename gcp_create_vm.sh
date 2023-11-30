@@ -18,7 +18,7 @@ DOCKER_REPO=dockerpy
 DOCKER_IMAGE=myimage
 DOCKER_TAG=tag6
 JOB_NAME=test-job
-DELETE=true
+DELETE=false
 
 # Set the project 
 gcloud config set project ${PROJECT_ID}
