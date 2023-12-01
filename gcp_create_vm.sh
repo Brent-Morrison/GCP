@@ -40,7 +40,7 @@ gcloud compute instances create ${INSTANCE_NAME} \
     --provisioning-model=STANDARD \
     --service-account=240908920150-compute@developer.gserviceaccount.com \
     --scopes "https://www.googleapis.com/auth/cloud-platform" \
-    --create-disk=boot=yes,device-name=test-vm-1,image=projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20231101,size=10 \
+    --create-disk=boot=yes,device-name=test-vm-1,image=projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20231201,size=10 \
     --no-shielded-secure-boot \
     --shielded-vtpm \
     --shielded-integrity-monitoring \
